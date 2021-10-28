@@ -1,25 +1,44 @@
-import logo from './logo.svg';
 import './App.css';
+import React, { useEffect, useState } from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom';
+import Nav from './Nav';
+import Pokedex from './Pokedex';
+import MyTeam from './MyTeam';
+import Pokemon from './Pokemon';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [pokemon, setPokemon] = useState();
+
+	useEffect(() => {
+		const pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/';
+		const makeApiCall = (pokemonUrl) => {
+			return fetch(pokemonUrl)
+				.then((response) => response.json())
+				.then((data) => setPokemon(data.results));
+		};
+		makeApiCall(pokemonUrl);
+	}, []);
+
+	return (
+		<div className='App'>
+			<Nav />
+			<main>
+				<Switch>
+					<Route exact path='/' render={() => <Pokedex pokemon={pokemon} />} />
+					<Route exact path='/pokedex' render={() => <Redirect to='/' />} />
+					<Route
+						exact
+						path='/pokemon/:id'
+						render={(routerProps) => (
+							<Pokemon {...routerProps} pokemon={pokemon} />
+						)}
+					/>
+					<Route exact path='/myteam' component={MyTeam} />
+					<Redirect to='/' />
+				</Switch>
+			</main>
+		</div>
+	);
 }
 
 export default App;
